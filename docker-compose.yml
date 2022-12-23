@@ -1,0 +1,54 @@
+version: '3.2'
+
+services:
+
+  frontend:
+    build: frontend
+    hostname: frontend.test
+    ports:
+      - 20080:80
+    volumes:
+      # Re-use local composer cache via host-volume
+      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+      # Mount source-code for development
+      - ./:/app
+
+  backend:
+    build: backend
+    hostname: backend.test
+    ports:
+      - 21080:80
+    volumes:
+      # Re-use local composer cache via host-volume
+      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+      # Mount source-code for development
+      - ./:/app
+
+  mysql:
+    image: mysql:5.7
+    hostname: mysql.test
+    environment:
+      - MYSQL_ROOT_PASSWORD=verysecret
+      - MYSQL_DATABASE=yii2advanced
+      - MYSQL_USER=yii2advanced
+      - MYSQL_PASSWORD=secret
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    domainname: pma.test
+    links:
+       - mysql
+    environment:
+     PMA_HOST: db
+     PMA_PORT: 3306
+     PMA_ARBITRARY: 1
+    restart: always
+    hostname: pma.test
+    ports:
+       - 8081:80
+  #pgsql:
+  #  image: postgres:9.5
+  #  environment:
+  #    - POSTGRES_DB=yii2advanced
+  #    - POSTGRES_USER=yii2advanced
+  #    - POSTGRES_PASSWORD=secret
